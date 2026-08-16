@@ -1,0 +1,42 @@
+# ---- .NET / backend ----
+backend/**/bin/
+backend/**/obj/
+backend/**/*.user
+.vs/
+*.suo
+
+# ---- secrets ----
+**/appsettings.Development.local.json
+**/.env
+**/.env.*
+!**/.env.example
+
+# ---- Flutter / Dart / mobile ----
+mobile/.dart_tool/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/.packages
+mobile/.pub-cache/
+mobile/.pub/
+mobile/build/
+mobile/**/android/.gradle/
+mobile/**/android/local.properties
+mobile/**/android/key.properties
+mobile/**/android/**/GeneratedPluginRegistrant.java
+mobile/**/ios/Flutter/.last_build_id
+mobile/**/ios/Pods/
+mobile/**/ios/.symlinks/
+mobile/**/*.g.dart
+mobile/**/*.freezed.dart
+mobile/**/*.drift.dart
+
+# ---- IDE / OS ----
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# ---- Docker volumes / logs ----
+infrastructure/**/data/
+*.log

@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: reclaim-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: reclaim
+      POSTGRES_USER: reclaim
+      POSTGRES_PASSWORD: reclaim_dev_password
+    ports:
+      - "5437:5432"
+    volumes:
+      - reclaim-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U reclaim -d reclaim"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: reclaim-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: dev@reclaim.local
+      PGADMIN_DEFAULT_PASSWORD: reclaim_dev_password
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "5051:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - reclaim-pgadmin-data:/var/lib/pgadmin
+
+volumes:
+  reclaim-postgres-data:
+  reclaim-pgadmin-data:
