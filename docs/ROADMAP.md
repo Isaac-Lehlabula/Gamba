@@ -18,7 +18,12 @@ Progress:
 - [x] Gambling entries: CRUD, filters, per-profile platforms, stats by local period;
       sensitive free text encrypted at rest
 - [ ] Backend: goals, urges, dashboard, blocklist, support resources
-- [ ] Mobile app (Flutter) — not started
+- [x] Mobile foundation: encrypted local database, theme, router with onboarding gate,
+      five-tab shell (Block, Journal and Support show honest "coming soon" screens)
+- [x] Mobile: onboarding questionnaire, offline self-assessment with result and history
+- [x] Mobile: loss tracker (add/edit/delete, period totals) and recovery dashboard
+      (days without gambling, longest run, estimated money kept, this month's totals)
+- [ ] Mobile: goals, urge flow, settings/wipe, backup
 - [ ] Android blocker, iOS blocker scaffold, local protection lock
 
 ## Phase 2 — trigger journal & insights

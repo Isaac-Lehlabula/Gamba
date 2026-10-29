@@ -50,9 +50,12 @@ not an afterthought.
   while old ones stay configured for reading. Keys are supplied by configuration
   (`FieldEncryption:Keys:<id>`); moving them behind a managed KMS with per-record data keys
   (full envelope encryption) is a hosting-time decision.
-- **Mobile:** the Drift/SQLite database is encrypted at rest via `sqlcipher_flutter_libs`;
-  the database encryption key itself lives in secure OS-backed storage
-  (`flutter_secure_storage`), never in the database or app preferences.
+- **Mobile:** the Drift/SQLite database is encrypted at rest with SQLite3MultipleCiphers
+  (bundled by `package:sqlite3`; no OpenSSL dependency). A random 256-bit key is created on
+  first launch and lives only in secure OS-backed storage (`flutter_secure_storage`), never in
+  the database or app preferences. Opening refuses to proceed if the SQLite build has no
+  cipher support, so the app can never silently write plaintext. Android cloud backup is
+  disabled (`allowBackup="false"`) so the encrypted file isn't copied off the device.
 - Secrets (DB connection strings, JWT signing key, encryption keys) are never committed to
   source control. Local development uses `dotnet user-secrets`/`.env` files (gitignored);
   production is documented to use a managed secrets store (e.g. Key Vault/Parameter

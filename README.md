@@ -47,15 +47,12 @@ Swagger UI is available at `/swagger` in Development.
 ```powershell
 cd mobile
 flutter pub get
-flutter pub run build_runner build --delete-conflicting-outputs
+dart run build_runner build
 flutter run
 ```
 
-By default the app runs fully offline/anonymous — no backend connection is required to
-use onboarding, the dashboard, the tracker, goals or the urge-intervention flow. Creating
-an account (Settings → Back up my data) connects to the backend at the URL configured in
-`mobile/lib/core/network/api_config.dart` (defaults to `10.0.2.2:5001` for the Android
-emulator talking to a locally-running backend).
+The app runs fully offline and anonymously; it needs no backend. Optional account backup
+(planned) will connect to the backend. See `mobile/README.md`.
 
 ## Documentation
 

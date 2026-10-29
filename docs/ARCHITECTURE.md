@@ -81,7 +81,8 @@ bearer auth + rotating refresh tokens, xUnit.
 ## Mobile
 
 **Stack:** Flutter 3.x, Riverpod (+ code generation) for state/DI, `go_router` for
-navigation, Drift (SQLite) + `sqlcipher_flutter_libs` for encrypted local storage, `dio` for
+navigation, Drift (SQLite) on the encrypted SQLite3MultipleCiphers build that `package:sqlite3`
+bundles via its build hook (selected in `pubspec.yaml`), `dio` for
 HTTP, `flutter_secure_storage` for tokens/keys, `local_auth` for biometric app lock.
 
 **Why Riverpod:** compile-time-safe dependency injection without `BuildContext` coupling,

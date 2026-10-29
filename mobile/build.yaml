@@ -1,0 +1,20 @@
+# Drift runs in modular mode: it writes standalone *.drift.dart files rather than a shared
+# *.g.dart part, so riverpod_generator can resolve Drift row types in provider signatures.
+global_options:
+  drift_dev:modular:
+    runs_before:
+      - riverpod_generator:riverpod_generator
+
+targets:
+  $default:
+    builders:
+      drift_dev:
+        enabled: false
+      drift_dev:analyzer:
+        enabled: true
+        options: &drift_options
+          # ISO-8601 text keeps timestamps readable and timezone-explicit.
+          store_date_time_values_as_text: true
+      drift_dev:modular:
+        enabled: true
+        options: *drift_options
