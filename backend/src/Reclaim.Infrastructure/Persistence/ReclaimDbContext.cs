@@ -1,23 +1,41 @@
 using Microsoft.EntityFrameworkCore;
 using Reclaim.Application.Common.Abstractions;
+using Reclaim.Domain.Assessment;
 using Reclaim.Domain.Auditing;
+using Reclaim.Domain.Gambling;
+using Reclaim.Domain.Onboarding;
 using Reclaim.Domain.Users;
+using Reclaim.Infrastructure.Security;
 
 namespace Reclaim.Infrastructure.Persistence;
 
-public sealed class ReclaimDbContext(DbContextOptions<ReclaimDbContext> options) : DbContext(options), IUnitOfWork
+public sealed class ReclaimDbContext(DbContextOptions<ReclaimDbContext> options, FieldEncryptor encryptor) : DbContext(options), IUnitOfWork
 {
     public DbSet<AppUser> AppUsers => Set<AppUser>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<OnboardingResponse> OnboardingResponses => Set<OnboardingResponse>();
+    public DbSet<SelfAssessmentResult> SelfAssessmentResults => Set<SelfAssessmentResult>();
+    public DbSet<GamblingEntry> GamblingEntries => Set<GamblingEntry>();
+    public DbSet<GamblingPlatform> GamblingPlatforms => Set<GamblingPlatform>();
 
     async Task IUnitOfWork.SaveChangesAsync(CancellationToken cancellationToken) =>
         await SaveChangesAsync(cancellationToken);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ReclaimDbContext).Assembly);
+        // Listed explicitly because some configurations need the encryptor. EF caches the model
+        // per context type, so the encryptor captured here must be the registered singleton.
+        modelBuilder
+            .ApplyConfiguration(new AppUserConfiguration())
+            .ApplyConfiguration(new RefreshTokenConfiguration())
+            .ApplyConfiguration(new UserProfileConfiguration())
+            .ApplyConfiguration(new AuditLogConfiguration())
+            .ApplyConfiguration(new OnboardingResponseConfiguration(encryptor))
+            .ApplyConfiguration(new SelfAssessmentResultConfiguration())
+            .ApplyConfiguration(new GamblingEntryConfiguration(encryptor))
+            .ApplyConfiguration(new GamblingPlatformConfiguration());
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)

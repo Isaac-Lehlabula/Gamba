@@ -30,7 +30,8 @@ Legend: **[P1]** implemented in this pass, **[P2]** specified here but deferred 
 
 | Method | Route | Notes |
 |---|---|---|
-| POST | `/assessment/submit` | answers → score + risk level + recommended actions |
+| GET | `/assessment/questions` | the questionnaire (versioned) and answer scale; anonymous, so the app can show it before an account exists |
+| POST | `/assessment/submit` | `{ answers: { questionId: 0-3 } }` → score + risk level + recommended actions + disclaimer. Every question must be answered; score and level are always computed server-side |
 | GET | `/assessment/history` | past results, newest first |
 
 ## Dashboard **[P1]**
@@ -43,11 +44,16 @@ Legend: **[P1]** implemented in this pass, **[P2]** specified here but deferred 
 
 | Method | Route | Notes |
 |---|---|---|
-| GET | `/gambling-entries` | filter by date range/type/platform, paginated |
+| GET | `/gambling-entries` | query `from`, `to` (both inclusive, on `occurredAtUtc`), `entryType`, `gamblingType`, `platform` (name, case-insensitive), paginated, newest first |
 | POST | `/gambling-entries` | create an entry |
 | PUT | `/gambling-entries/{id}` | edit an entry |
 | DELETE | `/gambling-entries/{id}` | remove an entry |
-| GET | `/gambling-entries/stats` | totals: daily/weekly/monthly/lifetime deposited/withdrawn/net |
+| GET | `/gambling-entries/stats` | `?timeZone=` (IANA, default `Africa/Johannesburg`) → today / this week (from Monday) / this month / lifetime: `deposited`, `withdrawn`, `won`, `lost`, `netLoss` |
+
+Entries take a free-text `platformName`; the backend groups names case-insensitively per
+profile. `netLoss = (deposited − withdrawn) + (lost − won)`: people usually log either money
+moved or outcomes, and the app should explain that logging both for the same money counts it
+twice. A negative `netLoss` means the user is ahead.
 
 ## Goals **[P1]**
 
@@ -119,7 +125,11 @@ Legend: **[P1]** implemented in this pass, **[P2]** specified here but deferred 
 - All list endpoints support `page`/`pageSize` and return `{ items, page, pageSize,
   totalCount }`.
 - All monetary values are `decimal` ZAR, serialised as JSON numbers with 2 decimal places.
-- All timestamps are ISO-8601 UTC.
+- All timestamps are ISO-8601 UTC. A timestamp sent without an offset is read as UTC.
+- Create endpoints for user records (onboarding responses, assessments, gambling entries)
+  accept an optional client-generated `id`, so records created offline keep their identity
+  when synced. Reusing an existing id returns `409`.
+- Required enum fields that are missing fail validation rather than defaulting.
 - Mutating endpoints validate via FluentValidation before reaching a handler; validation
   failures return `400` with a `ProblemDetails` body listing field errors.
 - Rate limiting: `/auth/*` endpoints are limited per-IP (see `SECURITY.md`); all other

@@ -28,6 +28,11 @@ public static class DependencyInjection
             .Bind(configuration.GetSection(AuditOptions.SectionName))
             .Validate(o => o.IpHashKey.Length >= 32, "Audit:IpHashKey must be at least 32 characters.")
             .ValidateOnStart();
+        services.AddOptions<FieldEncryptionOptions>()
+            .Bind(configuration.GetSection(FieldEncryptionOptions.SectionName))
+            .Validate(o => o.Keys.ContainsKey(o.ActiveKeyId), "FieldEncryption:ActiveKeyId must name one of FieldEncryption:Keys.")
+            .ValidateOnStart();
+        services.AddSingleton<FieldEncryptor>();
         services.AddOptions<PasswordHashingOptions>().Bind(configuration.GetSection(PasswordHashingOptions.SectionName));
         services.AddOptions<AccountDeletionOptions>().Bind(configuration.GetSection(AccountDeletionOptions.SectionName));
 
@@ -39,6 +44,10 @@ public static class DependencyInjection
         services.AddScoped<IAppUserRepository, AppUserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IUserProfileRepository, UserProfileRepository>();
+        services.AddScoped<IOnboardingResponseRepository, OnboardingResponseRepository>();
+        services.AddScoped<ISelfAssessmentRepository, SelfAssessmentRepository>();
+        services.AddScoped<IGamblingEntryRepository, GamblingEntryRepository>();
+        services.AddScoped<IGamblingPlatformRepository, GamblingPlatformRepository>();
 
         services.AddHostedService<AccountPurgeService>();
         services.AddHealthChecks().AddDbContextCheck<ReclaimDbContext>("database");

@@ -22,6 +22,42 @@ namespace Reclaim.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Reclaim.Domain.Assessment.SelfAssessmentResult", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Answers")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("QuestionnaireVersion")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("RiskLevel")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserProfileId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserProfileId", "CreatedAtUtc");
+
+                    b.ToTable("SelfAssessmentResult", (string)null);
+                });
+
             modelBuilder.Entity("Reclaim.Domain.Auditing.AuditLog", b =>
                 {
                     b.Property<Guid>("Id")
@@ -56,6 +92,131 @@ namespace Reclaim.Infrastructure.Persistence.Migrations
                     b.HasIndex("CreatedAtUtc");
 
                     b.ToTable("AuditLog", (string)null);
+                });
+
+            modelBuilder.Entity("Reclaim.Domain.Gambling.GamblingEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EntryType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid?>("GamblingPlatformId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("GamblingType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("OccurredAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserProfileId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GamblingPlatformId");
+
+                    b.HasIndex("UserProfileId", "OccurredAtUtc");
+
+                    b.ToTable("GamblingEntry", (string)null);
+                });
+
+            modelBuilder.Entity("Reclaim.Domain.Gambling.GamblingPlatform", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedByUserProfileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<string>("NormalizedName")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedByUserProfileId", "NormalizedName")
+                        .IsUnique();
+
+                    b.ToTable("GamblingPlatform", (string)null);
+                });
+
+            modelBuilder.Entity("Reclaim.Domain.Onboarding.OnboardingResponse", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal?>("ApproxMonthlySpend")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FrequencyBand")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.PrimitiveCollection<string[]>("GamblingTypes")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
+                    b.Property<string>("Goal")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("MoneyGoalPreference")
+                        .HasColumnType("text");
+
+                    b.PrimitiveCollection<string[]>("Triggers")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserProfileId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserProfileId", "CreatedAtUtc");
+
+                    b.ToTable("OnboardingResponse", (string)null);
                 });
 
             modelBuilder.Entity("Reclaim.Domain.Users.AppUser", b =>
@@ -187,12 +348,54 @@ namespace Reclaim.Infrastructure.Persistence.Migrations
                     b.ToTable("UserProfile", (string)null);
                 });
 
+            modelBuilder.Entity("Reclaim.Domain.Assessment.SelfAssessmentResult", b =>
+                {
+                    b.HasOne("Reclaim.Domain.Users.UserProfile", null)
+                        .WithMany()
+                        .HasForeignKey("UserProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Reclaim.Domain.Auditing.AuditLog", b =>
                 {
                     b.HasOne("Reclaim.Domain.Users.AppUser", null)
                         .WithMany()
                         .HasForeignKey("AppUserId")
                         .OnDelete(DeleteBehavior.SetNull);
+                });
+
+            modelBuilder.Entity("Reclaim.Domain.Gambling.GamblingEntry", b =>
+                {
+                    b.HasOne("Reclaim.Domain.Gambling.GamblingPlatform", "Platform")
+                        .WithMany()
+                        .HasForeignKey("GamblingPlatformId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Reclaim.Domain.Users.UserProfile", null)
+                        .WithMany()
+                        .HasForeignKey("UserProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Platform");
+                });
+
+            modelBuilder.Entity("Reclaim.Domain.Gambling.GamblingPlatform", b =>
+                {
+                    b.HasOne("Reclaim.Domain.Users.UserProfile", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserProfileId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Reclaim.Domain.Onboarding.OnboardingResponse", b =>
+                {
+                    b.HasOne("Reclaim.Domain.Users.UserProfile", null)
+                        .WithMany()
+                        .HasForeignKey("UserProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Reclaim.Domain.Users.RefreshToken", b =>

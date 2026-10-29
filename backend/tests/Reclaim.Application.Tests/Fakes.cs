@@ -32,6 +32,8 @@ internal sealed class InMemoryStore : IAppUserRepository, IRefreshTokenRepositor
     public void Add(RefreshToken token) => Tokens.Add(token);
 
     public Task<UserProfile?> GetByAppUserIdAsync(Guid userId, CancellationToken ct = default) => Task.FromResult(Profiles.FirstOrDefault(p => p.AppUserId == userId));
+    public Task<Guid?> GetIdByAppUserIdAsync(Guid userId, CancellationToken ct = default) =>
+        Task.FromResult(Profiles.FirstOrDefault(p => p.AppUserId == userId)?.Id);
     public void Add(UserProfile profile) => Profiles.Add(profile);
 
     public Task SaveChangesAsync(CancellationToken ct = default)

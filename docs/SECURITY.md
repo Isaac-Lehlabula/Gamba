@@ -42,9 +42,14 @@ not an afterthought.
 
 - **Backend:** PostgreSQL with disk-level encryption expected at the hosting layer
   (documented as an infra requirement); sensitive free-text fields (journal notes, urge
-  notes, gambling-entry notes) are stored encrypted at the application layer using a
-  server-held key (envelope encryption pattern), separate from the transport-level
-  protections above, so a raw DB dump does not expose journal content in plain text.
+  notes, gambling-entry notes, the onboarding money goal) are stored encrypted at the
+  application layer, separate from the transport-level protections above, so a raw DB dump
+  does not expose them in plain text. Implemented as AES-256-GCM via an EF Core value
+  converter; each value records the id of the key that encrypted it
+  (`enc:{keyId}:{nonce|tag|ciphertext}`), so keys can be rotated by adding a new active key
+  while old ones stay configured for reading. Keys are supplied by configuration
+  (`FieldEncryption:Keys:<id>`); moving them behind a managed KMS with per-record data keys
+  (full envelope encryption) is a hosting-time decision.
 - **Mobile:** the Drift/SQLite database is encrypted at rest via `sqlcipher_flutter_libs`;
   the database encryption key itself lives in secure OS-backed storage
   (`flutter_secure_storage`), never in the database or app preferences.

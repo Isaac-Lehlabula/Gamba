@@ -54,25 +54,27 @@ until the user creates an account and syncs.
 ### OnboardingResponse
 `Id`, `UserProfileId (fk)`, `GamblingTypes (text[])`, `FrequencyBand`, `ApproxMonthlySpend
 (decimal, nullable)`, `Triggers (text[])`, `Goal (Stop | Reduce)`, `MoneyGoalPreference
-(free text, optional)`, `CreatedAtUtc`.
+(free text, optional, encrypted at rest)`, `CreatedAtUtc`, `UpdatedAtUtc`. Enum lists are stored
+as `text[]` of enum names.
 
 ### SelfAssessmentResult
-`Id`, `UserProfileId (fk)`, `Answers (jsonb)`, `Score (int)`, `RiskLevel (Low |
-Increasing | High)`, `CreatedAtUtc`. Historical rows are kept (never overwritten) so
+`Id`, `UserProfileId (fk)`, `QuestionnaireVersion (int)`, `Answers (jsonb, question id →
+0-3)`, `Score (int)`, `RiskLevel (Low | Increasing | High)`, `CreatedAtUtc`, `UpdatedAtUtc`. Historical rows are kept (never overwritten) so
 progress over time can eventually be shown.
 
 ### GamblingEntry
 `Id`, `UserProfileId (fk)`, `EntryType (Deposit | Withdrawal | Win | Loss)`,
 `Amount (decimal(12,2))`, `OccurredAtUtc (date the user reports, not necessarily now)`,
 `GamblingPlatformId (fk, nullable)`, `GamblingType (SportsBetting | Casino | Slots |
-CrashGame | Lottery | Other)`, `Notes (text, nullable, encrypted at rest client-side before
-sync — see SECURITY.md)`, `CreatedAtUtc`, `UpdatedAtUtc`.
+CrashGame | Lottery | Other)`, `Notes (text, nullable, encrypted at rest — see SECURITY.md)`,
+`CreatedAtUtc`, `UpdatedAtUtc`. Indexed on `(UserProfileId, OccurredAtUtc)`.
 
 ### GamblingPlatform
 Lookup of platform *names* the user has typed (e.g. "Betway", "Hollywoodbets") — **not** a
 directory of gambling sites, purely so the tracker can autocomplete/group by platform.
-`Id`, `Name`, `CreatedByUserProfileId (fk, nullable — null for common seeded names)`,
-`CreatedAtUtc`.
+`Id`, `Name`, `NormalizedName` (upper-cased, trimmed), `CreatedByUserProfileId (fk,
+nullable — null for common seeded names)`, `CreatedAtUtc`, `UpdatedAtUtc`. Unique on
+`(CreatedByUserProfileId, NormalizedName)`. Nothing is seeded yet.
 
 ### Urge
 `Id`, `UserProfileId (fk)`, `UrgeTriggerId (fk)`, `Intensity (1-5, nullable)`,

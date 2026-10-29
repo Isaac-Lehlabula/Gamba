@@ -31,6 +31,7 @@ No secrets are committed. Settings come from `appsettings.json`, then environmen
 | `ConnectionStrings:Reclaim` | Development points at the docker-compose Postgres on port 5438 |
 | `Jwt:SigningKey` | HMAC-SHA256 key, at least 32 bytes. **Required outside Development** — startup fails without it |
 | `Audit:IpHashKey` | HMAC key for hashing client IPs in the audit log, at least 32 characters. Required outside Development |
+| `FieldEncryption:ActiveKeyId`, `FieldEncryption:Keys:<id>` | AES-256 keys (base64, 32 bytes) for encrypted free-text columns. Development uses a committed dev-only key; production must supply its own. Keep old keys listed after rotating |
 | `PasswordHashing:Iterations` | PBKDF2 work factor, default 600,000 |
 | `AccountDeletion:GracePeriodDays` | Default 7 |
 | `RateLimiting:*` | Per-IP auth limit and per-user API limit, per minute |

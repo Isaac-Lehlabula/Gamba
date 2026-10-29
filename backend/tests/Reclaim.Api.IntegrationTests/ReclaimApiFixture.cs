@@ -1,5 +1,7 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +21,12 @@ public sealed class ReclaimApiFixture : IAsyncLifetime
     private PostgreSqlContainer? _postgres;
     private WebApplicationFactory<Program>? _factory;
 
+    /// <summary>Matches the API's serializer settings (camelCase, enums as strings).</summary>
+    public static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { Converters = { new JsonStringEnumConverter() } };
+
     public string? UnavailableReason { get; private set; }
+
+    public IServiceProvider Services => _factory!.Services;
 
     public async Task InitializeAsync()
     {
@@ -40,6 +47,8 @@ public sealed class ReclaimApiFixture : IAsyncLifetime
             b.UseSetting("ConnectionStrings:Reclaim", _postgres.GetConnectionString());
             b.UseSetting("Jwt:SigningKey", "integration-test-signing-key-that-is-long-enough");
             b.UseSetting("Audit:IpHashKey", "integration-test-ip-hash-key-that-is-long-enough");
+            b.UseSetting("FieldEncryption:ActiveKeyId", "test");
+            b.UseSetting("FieldEncryption:Keys:test", Convert.ToBase64String(new byte[32]));
             b.UseSetting("PasswordHashing:Iterations", "1000");
             b.UseSetting("RateLimiting:AuthPermitsPerMinutePerIp", "10000");
             b.UseSetting("RateLimiting:RequestsPerMinutePerUser", "10000");

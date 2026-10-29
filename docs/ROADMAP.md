@@ -14,8 +14,10 @@ Progress:
 - [x] Auth: register, login, refresh rotation with reuse detection, logout, account
       deletion with 7-day grace period and background hard-delete; audit log
 - [x] Profile: `GET`/`PUT /profile`
-- [ ] Backend: onboarding, assessment, gambling entries + stats, goals, urges, dashboard,
-      blocklist, support resources
+- [x] Onboarding responses, self-assessment (questions, scoring, guidance, history)
+- [x] Gambling entries: CRUD, filters, per-profile platforms, stats by local period;
+      sensitive free text encrypted at rest
+- [ ] Backend: goals, urges, dashboard, blocklist, support resources
 - [ ] Mobile app (Flutter) — not started
 - [ ] Android blocker, iOS blocker scaffold, local protection lock
 

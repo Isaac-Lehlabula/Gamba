@@ -21,3 +21,18 @@ public static class DateTimeExtensions
     public static DateTime AsUtc(this DateTime value) =>
         value.Kind == DateTimeKind.Unspecified ? DateTime.SpecifyKind(value, DateTimeKind.Utc) : value.ToUniversalTime();
 }
+
+public sealed record PagedResponse<T>(IReadOnlyList<T> Items, int Page, int PageSize, int TotalCount);
+
+public static class Paging
+{
+    public const int DefaultPageSize = 50;
+    public const int MaxPageSize = 200;
+}
+
+public static class ProfileLookup
+{
+    /// <summary>Every account has a profile from registration, so a missing one is a 404, not a crash.</summary>
+    public static async Task<Guid> RequireIdAsync(this Abstractions.IUserProfileRepository profiles, Guid appUserId, CancellationToken cancellationToken)
+        => await profiles.GetIdByAppUserIdAsync(appUserId, cancellationToken) ?? throw new NotFoundException("Profile not found.");
+}
