@@ -36,7 +36,7 @@ source of truth — but it is never a hard requirement to use the app.
 
 ```
 /mobile          Flutter app (package: reclaim_app)
-/backend         ASP.NET Core solution (Reclaim.sln)
+/backend         ASP.NET Core solution (Reclaim.slnx)
   src/Reclaim.Domain            entities, value objects, domain rules, no dependencies
   src/Reclaim.Application       use cases (CQRS-lite handlers), DTOs, interfaces, validators
   src/Reclaim.Infrastructure     EF Core, repositories, auth/token services, external services
@@ -49,7 +49,7 @@ source of truth — but it is never a hard requirement to use the app.
 
 ## Backend
 
-**Stack:** ASP.NET Core 8, EF Core + Npgsql, PostgreSQL, FluentValidation, Serilog, JWT
+**Stack:** ASP.NET Core 10 (LTS), EF Core + Npgsql, PostgreSQL, FluentValidation, Serilog, JWT
 bearer auth + rotating refresh tokens, xUnit.
 
 **Layering rules:**
@@ -59,7 +59,8 @@ bearer auth + rotating refresh tokens, xUnit.
   implements use cases (e.g. `SubmitAssessmentHandler`, `CreateGamblingEntryHandler`) plus
   FluentValidation validators for request DTOs.
 - `Infrastructure` depends on `Application`+`Domain` and implements the interfaces
-  (`ReclaimDbContext`, EF repositories, `IPasswordHasher`, `ITokenService`, `IClock`).
+  (`ReclaimDbContext`, EF repositories, `IPasswordHasher`, `ITokenService`). Time comes from the BCL's `TimeProvider`, so tests use
+  `FakeTimeProvider` rather than a custom clock interface.
 - `Api` depends on all three, wires DI in `Program.cs`, exposes versioned controllers,
   global exception handling → `ProblemDetails`, request validation pipeline, rate limiting,
   Serilog request logging with sensitive-field redaction.
@@ -68,7 +69,8 @@ bearer auth + rotating refresh tokens, xUnit.
 - **Auth:** short-lived JWT access token (15 min) + rotating refresh token (30 days,
   hashed at rest, single-use — reuse revokes the whole chain).
 - **API versioning:** all routes under `/api/v1/...` from day one.
-- **Validation:** FluentValidation validators run in a pipeline behaviour before handlers.
+- **Validation:** FluentValidation validators run in a global MVC action filter (`ValidationFilter`)
+  before handlers.
 - **Error handling:** a single exception-handling middleware maps domain/validation
   exceptions to RFC 7807 `ProblemDetails` responses; unhandled exceptions are logged with a
   correlation id and returned as a generic 500 (no internal detail leaked).

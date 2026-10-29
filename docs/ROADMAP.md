@@ -7,6 +7,18 @@ goals, urge intervention flow, Android blocker (working), iOS blocker (written,
 unverified — no Mac available), basic protection lock (local), support-resource stub.
 Full detail in `PRODUCT.md`.
 
+Progress:
+
+- [x] Backend foundation: solution layering, EF Core + Postgres, ProblemDetails errors,
+      FluentValidation, Serilog, rate limiting, health check, Swagger (dev)
+- [x] Auth: register, login, refresh rotation with reuse detection, logout, account
+      deletion with 7-day grace period and background hard-delete; audit log
+- [x] Profile: `GET`/`PUT /profile`
+- [ ] Backend: onboarding, assessment, gambling entries + stats, goals, urges, dashboard,
+      blocklist, support resources
+- [ ] Mobile app (Flutter) — not started
+- [ ] Android blocker, iOS blocker scaffold, local protection lock
+
 ## Phase 2 — trigger journal & insights
 
 - Full trigger journal (mood/trigger/intensity/what-helped) with descriptive, clearly

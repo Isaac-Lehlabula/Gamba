@@ -12,7 +12,7 @@ built vs. planned.
 
 ```
 /mobile          Flutter app (Android + iOS)
-/backend         ASP.NET Core Web API (Reclaim.sln)
+/backend         ASP.NET Core Web API (Reclaim.slnx)
 /infrastructure  Local dev infrastructure (docker-compose.yml for Postgres + pgAdmin)
 /docs            Product, architecture, database, API, blocking, security, privacy, roadmap docs
 ```
@@ -26,7 +26,7 @@ cd infrastructure
 docker compose up -d
 ```
 
-Postgres will be available at `localhost:5437` (db `reclaim`, user `reclaim`, password
+Postgres will be available at `localhost:5438` (db `reclaim`, user `reclaim`, password
 `reclaim_dev_password` — local dev only, see `backend/README.md` for how production
 configuration works). pgAdmin is available at `http://localhost:5051`.
 

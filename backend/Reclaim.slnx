@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Reclaim.Api/Reclaim.Api.csproj" />
+    <Project Path="src/Reclaim.Application/Reclaim.Application.csproj" />
+    <Project Path="src/Reclaim.Domain/Reclaim.Domain.csproj" />
+    <Project Path="src/Reclaim.Infrastructure/Reclaim.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Reclaim.Api.IntegrationTests/Reclaim.Api.IntegrationTests.csproj" />
+    <Project Path="tests/Reclaim.Application.Tests/Reclaim.Application.Tests.csproj" />
+  </Folder>
+</Solution>

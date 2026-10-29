@@ -6,11 +6,14 @@ not an afterthought.
 
 ## Authentication & session security
 
-- Passwords hashed with a modern adaptive algorithm (BCrypt/ASP.NET Core Identity's
-  `PasswordHasher`, work factor tuned per environment); never stored or logged in plain
-  text.
+- Passwords hashed with PBKDF2-HMAC-SHA256 (600,000 iterations, OWASP's current
+  recommendation; random 16-byte salt per password). The iteration count is stored with each
+  hash, so raising it later transparently rehashes on the user's next login. Never stored or
+  logged in plain text.
 - JWT access tokens are short-lived (15 minutes). Refresh tokens are long-lived (30 days),
-  **stored server-side only as a salted hash**, single-use, and rotated on every refresh.
+  **stored server-side only as a SHA-256 hash**, single-use, and rotated on every refresh.
+  (The token itself is 256 random bits, so a salt adds nothing and would prevent lookup by
+  hash.)
   Reusing an already-rotated refresh token revokes the entire token family (theft
   detection) and is written to `AuditLog`.
 - Mobile stores tokens exclusively in `flutter_secure_storage` (Android Keystore / iOS

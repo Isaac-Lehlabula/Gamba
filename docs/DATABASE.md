@@ -37,9 +37,10 @@ until verified? see below)`, `PasswordHash`, `PasswordHashAlgorithm`, `EmailVeri
 `DeletedAtUtc` (soft-delete grace period), `CreatedAtUtc`, `UpdatedAtUtc`.
 
 ### RefreshToken
-`Id`, `AppUserId (fk)`, `TokenHash` (never store the raw token), `ExpiresAtUtc`,
-`RevokedAtUtc`, `ReplacedByTokenHash`, `CreatedAtUtc`. Reuse of a revoked token revokes the
-whole chain (theft detection).
+`Id`, `AppUserId (fk)`, `FamilyId` (shared by every token rotated from one login),
+`TokenHash` (never store the raw token), `ExpiresAtUtc`, `RevokedAtUtc`,
+`ReplacedByTokenHash`, `CreatedAtUtc`, `UpdatedAtUtc`. Reuse of a revoked token revokes every
+token in its family (theft detection) without signing the user out of other devices.
 
 ### UserProfile
 `Id`, `AppUserId (fk, nullable — a purely local/anonymous profile has no AppUserId)`,
