@@ -1,10 +1,8 @@
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:reclaim_app/core/storage/app_database.dart';
 import 'package:reclaim_app/features/onboarding/domain/onboarding_models.dart';
 import 'package:reclaim_app/features/tracker/data/tracker_repository.dart';
 import 'package:reclaim_app/features/tracker/domain/money.dart';
-import 'package:sqlite3/sqlite3.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../helpers.dart';
@@ -68,24 +66,5 @@ void main() {
     await repo.add(entry());
 
     expect(await repo.watchPlatformNames().first, ['betway', 'Hollywoodbets']);
-  });
-
-  test('a version 1 database is upgraded with the entries table', () async {
-    final raw = sqlite3.openInMemory();
-    addTearDown(raw.close);
-
-    // Build the current schema, then strip it back to what version 1 had.
-    final current = AppDatabase(NativeDatabase.opened(raw, closeUnderlyingOnClose: false));
-    await current.customSelect('SELECT 1').get();
-    await current.close();
-    raw
-      ..execute('DROP TABLE gambling_entries')
-      ..execute('PRAGMA user_version = 1');
-
-    final upgraded = AppDatabase(NativeDatabase.opened(raw, closeUnderlyingOnClose: false));
-    addTearDown(upgraded.close);
-    await TrackerRepository(upgraded, const Uuid(), () => testNow).add(entry());
-    expect(await upgraded.select(upgraded.gamblingEntries).get(), hasLength(1));
-    expect(raw.select('PRAGMA user_version').single.values.single, 2);
   });
 }

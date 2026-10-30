@@ -13,6 +13,8 @@ import '../../features/shell/presentation/app_shell.dart';
 import '../../features/shell/presentation/coming_soon_screens.dart';
 import '../../features/shell/presentation/splash_screen.dart';
 import '../../features/tracker/presentation/entry_form_screen.dart';
+import '../../features/urges/presentation/urge_session_screen.dart';
+import '../../features/urges/presentation/urge_start_screen.dart';
 
 part 'app_router.g.dart';
 
@@ -24,6 +26,8 @@ abstract final class Routes {
   static String assessmentResult(String id) => '/assessment/result/$id';
   static const newEntry = '/entries/new';
   static String editEntry(String id) => '/entries/$id';
+  static const urge = '/urge';
+  static String urgeSession(String id) => '/urge/$id';
 
   static const home = '/home';
   static const progress = '/progress';
@@ -74,6 +78,11 @@ GoRouter appRouter(Ref ref) {
       ),
       GoRoute(path: Routes.newEntry, builder: (_, _) => const EntryFormScreen()),
       GoRoute(path: '/entries/:id', builder: (_, state) => EntryFormScreen(entryId: state.pathParameters['id'])),
+      GoRoute(
+        path: Routes.urge,
+        builder: (_, _) => const UrgeStartScreen(),
+        routes: [GoRoute(path: ':id', builder: (_, state) => UrgeSessionScreen(urgeId: state.pathParameters['id']!))],
+      ),
       StatefulShellRoute.indexedStack(
         builder: (_, _, navigationShell) => AppShell(navigationShell: navigationShell),
         branches: [

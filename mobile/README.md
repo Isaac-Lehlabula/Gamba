@@ -29,7 +29,7 @@ pulling, and again whenever you change a Drift table or a `@riverpod` provider
 - Drift runs in *modular* mode (`build.yaml`) so Riverpod's generator can see Drift row types.
 - Ids are client-generated UUIDs, so records keep their identity when synced to an account.
 - Schema changes bump `schemaVersion` in `app_database.dart` and add a step to `onUpgrade`;
-  `tracker_repository_test.dart` covers the version 1 → 2 upgrade.
+  `test/core/migration_test.dart` covers upgrading from every earlier version.
 
 ## Dashboard rules
 
@@ -42,6 +42,16 @@ Pure functions in `lib/features/dashboard/domain/dashboard.dart`, tested in
   days, minus net loss logged since starting, never below zero. Shown only when a usual spend
   was given, and always labelled as an estimate.
 - **Net loss** = (deposited − withdrawn) + (lost − won), the same as the backend.
+- An urge whose outcome is "gambled" counts as a gambling day for the streak, even if no
+  amount was logged.
+
+## Urge flow
+
+`lib/features/urges/`. Only one urge is open at a time; starting another marks the open one
+abandoned, and an open urge older than 12 hours is no longer offered on Home. The countdown is
+worked out from the stored `startedAt` and `coolingOffMinutes`, so it carries on across app
+restarts. All guidance copy lives in `urge_models.dart`, and `urge_test.dart` checks it for
+shaming language.
 
 ## Things to keep in sync with the backend
 

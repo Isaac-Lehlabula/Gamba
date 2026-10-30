@@ -23,7 +23,12 @@ Progress:
 - [x] Mobile: onboarding questionnaire, offline self-assessment with result and history
 - [x] Mobile: loss tracker (add/edit/delete, period totals) and recovery dashboard
       (days without gambling, longest run, estimated money kept, this month's totals)
-- [ ] Mobile: goals, urge flow, settings/wipe, backup
+- [x] Mobile: "I feel like gambling" urge flow (trigger, intensity, 10-60 minute pause that
+      survives closing the app, personal reasons and trigger-specific tips, breathing and
+      grounding, outcome; an urge that ends in gambling counts toward the streak)
+- [ ] Mobile: goals, settings/wipe, backup
+- [ ] Mobile: a notification when a pause finishes while the app is closed (needs the
+      Phase 6 notification work)
 - [ ] Android blocker, iOS blocker scaffold, local protection lock
 
 ## Phase 2 — trigger journal & insights

@@ -1,0 +1,54 @@
+import 'package:drift/native.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:reclaim_app/core/storage/app_database.dart';
+import 'package:reclaim_app/features/onboarding/domain/onboarding_models.dart';
+import 'package:reclaim_app/features/tracker/data/tracker_repository.dart';
+import 'package:reclaim_app/features/tracker/domain/money.dart';
+import 'package:reclaim_app/features/urges/data/urge_repository.dart';
+import 'package:sqlite3/sqlite3.dart';
+import 'package:uuid/uuid.dart';
+
+import '../helpers.dart';
+
+/// Builds the current schema on [raw], then drops [tables] and sets the version back, to
+/// recreate what an older install has on disk.
+Future<void> rewindTo(Database raw, int version, List<String> tables) async {
+  final current = AppDatabase(NativeDatabase.opened(raw, closeUnderlyingOnClose: false));
+  await current.customSelect('SELECT 1').get();
+  await current.close();
+  for (final table in tables) {
+    raw.execute('DROP TABLE $table');
+  }
+  raw.execute('PRAGMA user_version = $version');
+}
+
+Future<void> expectCurrentSchemaWorks(Database raw) async {
+  final db = AppDatabase(NativeDatabase.opened(raw, closeUnderlyingOnClose: false));
+  addTearDown(db.close);
+  await TrackerRepository(db, const Uuid(), () => testNow).add(
+    EntryInput(type: GamblingEntryType.deposit, amountCents: 100, occurredAt: testNow, gamblingType: GamblingType.casino),
+  );
+  await UrgeRepository(db, const Uuid(), () => testNow).start(trigger: TriggerType.stress, minutes: 10);
+
+  expect(await db.select(db.gamblingEntries).get(), hasLength(1));
+  expect(await db.select(db.urges).get(), hasLength(1));
+  expect(raw.select('PRAGMA user_version').single.values.single, 3);
+}
+
+void main() {
+  setUp(() => createTestDatabase().close());
+
+  test('version 1 upgrades to the current schema', () async {
+    final raw = sqlite3.openInMemory();
+    addTearDown(raw.close);
+    await rewindTo(raw, 1, ['gambling_entries', 'urges']);
+    await expectCurrentSchemaWorks(raw);
+  });
+
+  test('version 2 upgrades to the current schema', () async {
+    final raw = sqlite3.openInMemory();
+    addTearDown(raw.close);
+    await rewindTo(raw, 2, ['urges']);
+    await expectCurrentSchemaWorks(raw);
+  });
+}

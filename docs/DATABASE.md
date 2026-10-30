@@ -163,4 +163,6 @@ Local differences from the backend schema: amounts are stored as integer cents
 (`amountCents`) to avoid floating-point error and are converted on sync; gambling entries
 keep the platform as a free-text `platformName` rather than a `GamblingPlatform` foreign key
 (the backend groups names on sync); onboarding spend is whole rands. Local schema history:
-version 1 (profile, onboarding, self-assessment), version 2 (gambling entries).
+version 1 (profile, onboarding, self-assessment), version 2 (gambling entries), version 3
+(urges). Urge triggers are stored as the `TriggerType` enum name rather than a foreign key to
+an `UrgeTrigger` lookup row; the backend can map names to its lookup on sync.

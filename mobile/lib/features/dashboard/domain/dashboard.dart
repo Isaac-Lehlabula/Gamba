@@ -67,12 +67,16 @@ class DashboardSummary {
     required List<({GamblingEntryType type, int amountCents, DateTime occurredAt})> entries,
     required int? usualMonthlySpendRands,
     required DateTime now,
+    List<DateTime> otherGamblingDates = const [],
   }) {
     final startDay = DateTime(start.year, start.month, start.day);
     final monthStart = StatsPeriod.month.startFor(now)!;
     final streaks = Streaks.compute(
       start: start,
-      gamblingDates: [for (final e in entries) if (e.type.isGamblingActivity) e.occurredAt],
+      gamblingDates: [
+        for (final e in entries) if (e.type.isGamblingActivity) e.occurredAt,
+        ...otherGamblingDates,
+      ],
       now: now,
     );
     final sinceStart = GamblingTotals.of([

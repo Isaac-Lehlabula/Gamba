@@ -12,6 +12,7 @@ import '../../onboarding/data/profile_repository.dart';
 import '../../tracker/data/tracker_repository.dart';
 import '../../tracker/domain/money.dart';
 import '../../tracker/presentation/tracker_section.dart';
+import '../../urges/data/urge_repository.dart';
 
 /// The recovery dashboard.
 class HomeScreen extends ConsumerWidget {
@@ -30,6 +31,7 @@ class HomeScreen extends ConsumerWidget {
     final summary = ref.watch(dashboardProvider);
     final moneyGoal = ref.watch(latestOnboardingProvider).value?.moneyGoalPreference;
     final latestCheck = ref.watch(assessmentHistoryProvider).value?.firstOrNull;
+    final activeUrge = ref.watch(activeUrgeProvider).value;
 
     return Scaffold(
       body: SafeArea(
@@ -37,6 +39,25 @@ class HomeScreen extends ConsumerWidget {
           padding: AppSpacing.screen,
           children: [
             Text(greetingFor(now), style: theme.textTheme.headlineMedium),
+            const SizedBox(height: AppSpacing.lg),
+            if (activeUrge != null)
+              Card(
+                color: theme.colorScheme.secondaryContainer,
+                child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+                  leading: const Icon(Icons.hourglass_bottom),
+                  title: const Text('Your pause is still going'),
+                  subtitle: const Text('Tap to go back to it.'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push(Routes.urgeSession(activeUrge.id)),
+                ),
+              )
+            else
+              FilledButton.icon(
+                onPressed: () => context.push(Routes.urge),
+                icon: const Icon(Icons.self_improvement),
+                label: const Text('I feel like gambling'),
+              ),
             const SizedBox(height: AppSpacing.lg),
             if (summary != null) ...[
               _StreakCard(streaks: summary.streaks),

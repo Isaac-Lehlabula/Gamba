@@ -8,6 +8,8 @@ import '../../../core/storage/storage_providers.dart';
 import '../../dashboard/domain/dashboard.dart';
 import '../../onboarding/data/profile_repository.dart';
 import '../../onboarding/domain/onboarding_models.dart';
+import '../../urges/data/urge_repository.dart';
+import '../../urges/domain/urge_models.dart';
 import '../domain/money.dart';
 
 part 'tracker_repository.g.dart';
@@ -133,5 +135,10 @@ DashboardSummary? dashboard(Ref ref) {
     entries: [for (final e in entries) (type: e.entryType, amountCents: e.amountCents, occurredAt: e.occurredAt)],
     usualMonthlySpendRands: ref.watch(latestOnboardingProvider).value?.approxMonthlySpendRands,
     now: ref.watch(clockProvider)(),
+    // An urge that ended in gambling is a gambling day even if no amount was logged.
+    otherGamblingDates: [
+      for (final u in ref.watch(urgeHistoryProvider).value ?? const <Urge>[])
+        if (u.outcome == UrgeOutcome.gambled) u.resolvedAt ?? u.startedAt,
+    ],
   );
 }

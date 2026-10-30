@@ -16,12 +16,13 @@ AppDatabase createTestDatabase() {
   return AppDatabase(NativeDatabase.memory());
 }
 
-Future<void> pumpApp(WidgetTester tester, AppDatabase db) async {
+/// [clock] lets a test move time forward (e.g. to finish a pause); defaults to [testNow].
+Future<void> pumpApp(WidgetTester tester, AppDatabase db, {DateTime Function()? clock}) async {
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
         appDatabaseProvider.overrideWithValue(db),
-        clockProvider.overrideWithValue(() => testNow),
+        clockProvider.overrideWithValue(clock ?? () => testNow),
       ],
       child: const ReclaimApp(),
     ),
