@@ -10,6 +10,8 @@ import '../../features/goals/presentation/goal_detail_screen.dart';
 import '../../features/goals/presentation/goal_form_screen.dart';
 import '../../features/goals/presentation/goals_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
+import '../../features/journal/presentation/journal_entry_screen.dart';
+import '../../features/journal/presentation/journal_screen.dart';
 import '../../features/onboarding/data/profile_repository.dart';
 import '../../features/onboarding/presentation/onboarding_screen.dart';
 import '../../features/onboarding/presentation/welcome_screen.dart';
@@ -21,6 +23,7 @@ import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/shell/presentation/app_shell.dart';
 import '../../features/shell/presentation/coming_soon_screens.dart';
 import '../../features/shell/presentation/splash_screen.dart';
+import '../../features/timeline/presentation/timeline_screen.dart';
 import '../../features/tracker/presentation/entry_form_screen.dart';
 import '../../features/urges/presentation/urge_session_screen.dart';
 import '../../features/urges/presentation/urge_start_screen.dart';
@@ -41,6 +44,9 @@ abstract final class Routes {
   static String newGoal({String? name}) => Uri(path: '/goals/new', queryParameters: name == null ? null : {'name': name}).toString();
   static String goal(String id) => '/goals/$id';
   static String editGoal(String id) => '/goals/$id/edit';
+  static const newJournalEntry = '/journal-entries/new';
+  static String journalEntry(String id) => '/journal-entries/$id';
+  static const timeline = '/timeline';
   static const settings = '/settings';
   static const pinSetup = '/settings/app-lock';
   static const account = '/settings/account';
@@ -112,6 +118,9 @@ GoRouter appRouter(Ref ref) {
         ],
       ),
       GoRoute(path: Routes.newEntry, builder: (_, _) => const EntryFormScreen()),
+      GoRoute(path: Routes.newJournalEntry, builder: (_, _) => const JournalEntryScreen()),
+      GoRoute(path: '/journal-entries/:id', builder: (_, state) => JournalEntryScreen(entryId: state.pathParameters['id'])),
+      GoRoute(path: Routes.timeline, builder: (_, _) => const TimelineScreen()),
       GoRoute(path: '/entries/:id', builder: (_, state) => EntryFormScreen(entryId: state.pathParameters['id'])),
       GoRoute(
         path: Routes.urge,
@@ -136,7 +145,7 @@ GoRouter appRouter(Ref ref) {
           StatefulShellBranch(routes: [GoRoute(path: Routes.home, builder: (_, _) => const HomeScreen())]),
           StatefulShellBranch(routes: [GoRoute(path: Routes.progress, builder: (_, _) => const ProgressScreen())]),
           StatefulShellBranch(routes: [GoRoute(path: Routes.block, builder: (_, _) => const BlockScreen())]),
-          StatefulShellBranch(routes: [GoRoute(path: Routes.journal, builder: (_, _) => const JournalComingSoonScreen())]),
+          StatefulShellBranch(routes: [GoRoute(path: Routes.journal, builder: (_, _) => const JournalScreen())]),
           StatefulShellBranch(routes: [GoRoute(path: Routes.support, builder: (_, _) => const SupportComingSoonScreen())]),
         ],
       ),

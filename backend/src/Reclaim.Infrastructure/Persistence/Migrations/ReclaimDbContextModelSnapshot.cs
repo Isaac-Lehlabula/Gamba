@@ -337,6 +337,51 @@ namespace Reclaim.Infrastructure.Persistence.Migrations
                     b.ToTable("RecoveryGoal", (string)null);
                 });
 
+            modelBuilder.Entity("Reclaim.Domain.Journal.JournalEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.PrimitiveCollection<string[]>("Helped")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
+                    b.Property<int?>("Mood")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("OccurredAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Outcome")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Trigger")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("UrgeIntensity")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("UserProfileId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserProfileId", "OccurredAtUtc");
+
+                    b.ToTable("JournalEntry", (string)null);
+                });
+
             modelBuilder.Entity("Reclaim.Domain.Onboarding.OnboardingResponse", b =>
                 {
                     b.Property<Guid>("Id")
@@ -608,6 +653,15 @@ namespace Reclaim.Infrastructure.Persistence.Migrations
                 });
 
             modelBuilder.Entity("Reclaim.Domain.Goals.RecoveryGoal", b =>
+                {
+                    b.HasOne("Reclaim.Domain.Users.UserProfile", null)
+                        .WithMany()
+                        .HasForeignKey("UserProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Reclaim.Domain.Journal.JournalEntry", b =>
                 {
                     b.HasOne("Reclaim.Domain.Users.UserProfile", null)
                         .WithMany()

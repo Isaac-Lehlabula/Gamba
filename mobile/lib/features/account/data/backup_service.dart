@@ -57,6 +57,7 @@ class BackupService {
     final urges = await _db.select(_db.urges).get();
     final goals = await _db.select(_db.recoveryGoals).get();
     final contributions = await _db.select(_db.goalContributions).get();
+    final journal = await _db.select(_db.journalEntries).get();
 
     return {
       'profile': profile == null
@@ -118,6 +119,19 @@ class BackupService {
                 if (c.goalId == g.id)
                   {'id': c.id, 'amount': _rands(c.amountCents), 'source': _enum(c.source), 'occurredAtUtc': _utc(c.occurredAt)},
             ],
+          },
+      ],
+      'journalEntries': [
+        for (final j in journal)
+          {
+            'id': j.id,
+            'occurredAtUtc': _utc(j.occurredAt),
+            'mood': j.mood,
+            'trigger': _enum(j.trigger),
+            'urgeIntensity': j.urgeIntensity,
+            'outcome': _enum(j.outcome),
+            'helped': [for (final h in j.helped) _enum(h)],
+            'note': j.note,
           },
       ],
     };

@@ -10,6 +10,8 @@ import 'package:reclaim_app/features/account/data/account_repository.dart';
 import 'package:reclaim_app/features/account/data/backup_service.dart';
 import 'package:reclaim_app/features/goals/data/goal_repository.dart';
 import 'package:reclaim_app/features/goals/domain/goal_models.dart';
+import 'package:reclaim_app/features/journal/data/journal_repository.dart';
+import 'package:reclaim_app/features/journal/domain/journal_models.dart';
 import 'package:reclaim_app/features/onboarding/data/profile_repository.dart';
 import 'package:reclaim_app/features/onboarding/domain/onboarding_models.dart';
 import 'package:reclaim_app/features/tracker/data/tracker_repository.dart';
@@ -109,6 +111,10 @@ void main() {
       ContributionSource.estimatedSavings,
     );
 
+    await JournalRepository(db, const Uuid(), () => testNow).add(
+      JournalInput(occurredAt: testNow, outcome: JournalOutcome.resisted, helped: {CopingStrategy.leftPhone}, note: 'phone in the car'),
+    );
+
     final payload = await BackupService(db, dio, store, () => testNow).buildPayload();
     final json = jsonDecode(jsonEncode(payload)) as Map<String, dynamic>;
 
@@ -128,6 +134,9 @@ void main() {
     expect((goal['category'], goal['targetAmount']), ('HouseDeposit', 20000));
     expect(((goal['contributions'] as List).single as Map)['source'], 'EstimatedSavings');
     expect((json['profile'] as Map)['recoveryGoalType'], 'Stop');
+    final journal = (json['journalEntries'] as List).single as Map;
+    expect((journal['outcome'], journal['note']), ('Resisted', 'phone in the car'));
+    expect(journal['helped'], ['LeftPhone']);
   });
 
   testWidgets('creating an account from Settings backs up straight away', (tester) async {

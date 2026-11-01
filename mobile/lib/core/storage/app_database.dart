@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import '../../features/assessment/domain/questionnaire.dart';
 import '../../features/blocker/domain/blocker_models.dart';
 import '../../features/goals/domain/goal_models.dart';
+import '../../features/journal/domain/journal_models.dart';
 import '../../features/onboarding/domain/onboarding_models.dart';
 import '../../features/tracker/domain/money.dart';
 import '../../features/urges/domain/urge_models.dart';
@@ -164,6 +165,33 @@ class ProtectionRemovalRequests extends Table {
   Set<Column<Object>> get primaryKey => {id};
 }
 
+class CopingStrategyListConverter extends EnumListConverter<CopingStrategy> {
+  const CopingStrategyListConverter();
+  @override
+  List<CopingStrategy> get values => CopingStrategy.values;
+}
+
+/// A private journal entry: how the user felt, what set off an urge, and what helped.
+class JournalEntries extends Table {
+  TextColumn get id => text()();
+  DateTimeColumn get occurredAt => dateTime()();
+
+  /// 1 (very low) to 5 (very good).
+  IntColumn get mood => integer().nullable()();
+  TextColumn get trigger => textEnum<TriggerType>().nullable()();
+
+  /// Strength of the urge, 1 to 5; null when there wasn't one.
+  IntColumn get urgeIntensity => integer().nullable()();
+  TextColumn get outcome => textEnum<JournalOutcome>().nullable()();
+  TextColumn get helped => text().map(const CopingStrategyListConverter())();
+  TextColumn get note => text().nullable()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
 /// Small non-secret values, such as the blocklist sync cursor.
 class LocalSettings extends Table {
   TextColumn get key => text()();
@@ -186,6 +214,7 @@ class LocalSettings extends Table {
     ProtectionLocks,
     ProtectionRemovalRequests,
     LocalSettings,
+    JournalEntries,
   ],
 )
 class AppDatabase extends $AppDatabase {
@@ -194,9 +223,9 @@ class AppDatabase extends $AppDatabase {
   static final _entriesByDate = Index('gambling_entries_occurred_at', 'CREATE INDEX gambling_entries_occurred_at ON gambling_entries (occurred_at)');
 
   /// 1: profile, onboarding, self-assessment. 2: gambling entries. 3: urges. 4: goals.
-  /// 5: blocker (domains, protection lock, settings).
+  /// 5: blocker (domains, protection lock, settings). 6: journal.
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -217,6 +246,9 @@ class AppDatabase extends $AppDatabase {
             await m.createTable(protectionLocks);
             await m.createTable(protectionRemovalRequests);
             await m.createTable(localSettings);
+          }
+          if (from < 6) {
+            await m.createTable(journalEntries);
           }
         },
         onCreate: (m) async {

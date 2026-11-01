@@ -38,12 +38,14 @@ Progress:
       with 24-hour cooling-off and user-added sites are local-only for now
 - [ ] iOS Screen Time scaffold written in AppDelegate.swift, unverified (needs a Mac), off
       unless built with RECLAIM_IOS_SCREEN_TIME=true
-- [ ] Docs: API.md and DATABASE.md not yet updated for urges/goals/blocklist/backup/schema v5
 - [ ] Mobile: a notification when a pause finishes while the app is closed (needs the
       Phase 6 notification work)
 - [ ] Android blocker, iOS blocker scaffold, local protection lock
 
-## Phase 2 — trigger journal & insights
+## Phase 2 — trigger journal & insights (done)
+
+Built in the app (local-first) and the backend (`/journal-entries`, `/journal-entries/insights`),
+with matching insight rules tested on both sides.
 
 - Full trigger journal (mood/trigger/intensity/what-helped) with descriptive, clearly
   non-diagnostic pattern surfacing ("Most of your recorded urges happen between 20:00 and

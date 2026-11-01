@@ -37,6 +37,16 @@ class ProgressScreen extends ConsumerWidget {
             const SizedBox(height: AppSpacing.xl),
             Card(
               child: ListTile(
+                leading: Icon(Icons.timeline, color: theme.colorScheme.primary),
+                title: const Text('Your timeline'),
+                subtitle: const Text('Milestones of days without gambling'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push(Routes.timeline),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Card(
+              child: ListTile(
                 leading: Icon(Icons.savings_outlined, color: theme.colorScheme.primary),
                 title: const Text('Goals'),
                 subtitle: const Text('What the money you keep is going toward'),

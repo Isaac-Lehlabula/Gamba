@@ -38,7 +38,7 @@ Legend: **[P1]** implemented in this pass, **[P2]** specified here but deferred 
 
 | Method | Route | Notes |
 |---|---|---|
-| GET | `/dashboard/summary` | streaks, estimated money kept, monthly deposit/withdrawal/net-loss, goal progress snapshot |
+| GET | `/dashboard/summary` | `?timeZone=` (default `Africa/Johannesburg`) → `streaks` (`current`, `longest`, `journeyDay`; null until the profile has a start date), `thisMonth` totals, `usualMonthlySpend`, `estimatedMoneyKept` (null without a usual spend), `goals` snapshot. Computed from source records with the same rules as the app; deposits, losses, wins and urges ending in gambling count as gambling days, withdrawals don't |
 
 ## Gambling entries (loss tracker) **[P1]**
 
@@ -59,38 +59,46 @@ twice. A negative `netLoss` means the user is ahead.
 
 | Method | Route | Notes |
 |---|---|---|
-| GET | `/goals` | list with progress |
-| POST | `/goals` | create |
+| GET | `/goals` | list, oldest first, each with `savedAmount` and its `contributions` |
+| POST | `/goals` | create: `name`, `category` (EmergencyFund, Car, HouseDeposit, Debt, Holiday, Education, Family, Savings, Custom), `targetAmount`, optional `targetDateUtc` |
 | PUT | `/goals/{id}` | edit |
-| DELETE | `/goals/{id}` | remove |
-| POST | `/goals/{id}/contributions` | add a manual contribution |
+| DELETE | `/goals/{id}` | remove, with its contributions |
+| POST | `/goals/{id}/contributions` | `amount`, `source` (`Manual` or `EstimatedSavings`), optional `occurredAtUtc` |
+| DELETE | `/goals/{id}/contributions/{contributionId}` | remove a contribution |
 
 ## Urges **[P1]**
 
 | Method | Route | Notes |
 |---|---|---|
-| POST | `/urges` | start an urge session (trigger + cooling-off duration) |
-| PUT | `/urges/{id}/resolve` | record outcome: passed / gambled / abandoned |
-| GET | `/urges` | history, for future pattern insights |
+| POST | `/urges` | start: `trigger`, optional `intensity` (1-5), `coolingOffMinutes` (10, 20, 30 or 60), optional `startedAtUtc` |
+| PUT | `/urges/{id}/extend` | add 10 minutes to an unresolved pause |
+| PUT | `/urges/{id}/resolve` | `outcome` (Passed, Gambled, Abandoned), optional `notes` (encrypted at rest) and `resolvedAtUtc`; once only |
+| GET | `/urges` | history, newest first, paginated |
 
 ## Support resources **[P1, read-only content]**
 
 | Method | Route | Notes |
 |---|---|---|
-| GET | `/support/resources` | verified South African support/counselling/self-exclusion/financial/emergency resources |
+| GET | `/support/resources` | anonymous. Only rows a person has marked verified are ever returned; the list is empty until real contacts are checked and added |
 
 ## Blocklist **[P1 endpoint, P2 client enforcement richness]**
 
 | Method | Route | Notes |
 |---|---|---|
-| GET | `/blocklist?since={timestamp}` | incremental list of active gambling domains, versioned by `UpdatedAtUtc` |
+| GET | `/blocklist?since={timestamp}` | anonymous. Without `since`: every active domain. With it: every change after it, deactivations included, so clients can unblock too. Returns `items` (`domain`, `category`, `isActive`, `updatedAtUtc`) and `nextSince` to pass back next time. A starter list is seeded at startup from `Infrastructure/Seed/blocklist-seed.txt` |
 
-## Journal **[P2]**
+## Backup **[P1]**
 
 | Method | Route | Notes |
 |---|---|---|
-| GET/POST/PUT/DELETE | `/journal-entries` | urge/mood/trigger/intensity/outcome/what-helped |
-| GET | `/journal-entries/insights` | descriptive pattern surfacing, explicitly non-diagnostic |
+| POST | `/backup` | everything on the phone in one request (profile, onboarding responses, assessments, entries, urges, goals with contributions, journal entries). Matches on client ids: creates what's missing, updates what's there, skips ids owned by another account. Safe to repeat; never deletes. Returns `created`, `updated`, `skipped` |
+
+## Journal **[P2, implemented]**
+
+| Method | Route | Notes |
+|---|---|---|
+| GET/POST/PUT/DELETE | `/journal-entries` | `occurredAtUtc`, optional `mood` (1-5), `trigger`, `urgeIntensity` (1-5), `outcome` (NoUrge, Resisted, Gambled), `helped` (Walked, TalkedToSomeone, Breathing, Distraction, BlockedSites, LeftPhone, RememberedGoal, Other), `note` (encrypted at rest). An entry needs at least one of these |
+| GET | `/journal-entries/insights` | `?timeZone=` → `insights` (plain sentences), `urgesRecorded`, `minimumUrges` (5), `disclaimer`. Combines journal urges with completed urge sessions. Rules: busiest 3-hour window if it holds ≥40% (and ≥3); busiest weekday if ≥30% of ≥7 urges; most-recorded trigger if ≥30% of ≥4 with a trigger; most common "what helped" among urges got through, if ≥2. Same rules and wording as the app (`mobile/lib/features/journal/domain/insights.dart`) |
 
 ## Protection lock **[P2 backend; P1 ships a local-only version on-device]**
 

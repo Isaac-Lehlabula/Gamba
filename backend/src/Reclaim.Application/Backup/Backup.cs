@@ -4,11 +4,13 @@ using Reclaim.Application.Common;
 using Reclaim.Application.Common.Abstractions;
 using Reclaim.Application.GamblingEntries;
 using Reclaim.Application.Goals;
+using Reclaim.Application.Journal;
 using Reclaim.Application.Onboarding;
 using Reclaim.Application.Urges;
 using Reclaim.Domain.Assessment;
 using Reclaim.Domain.Gambling;
 using Reclaim.Domain.Goals;
+using Reclaim.Domain.Journal;
 using Reclaim.Domain.Onboarding;
 using Reclaim.Domain.Urges;
 using Reclaim.Domain.Users;
@@ -46,7 +48,8 @@ public sealed record BackupRequest(
     List<BackupAssessment>? Assessments,
     List<SaveGamblingEntryRequest>? Entries,
     List<BackupUrge>? Urges,
-    List<BackupGoal>? Goals);
+    List<BackupGoal>? Goals,
+    List<SaveJournalEntryRequest>? JournalEntries = null);
 
 /// <param name="Skipped">Records whose id already belongs to another account; never overwritten.</param>
 public sealed record BackupResponse(int Created, int Updated, int Skipped);
@@ -62,6 +65,9 @@ public sealed class BackupRequestValidator : AbstractValidator<BackupRequest>
         RuleFor(x => x.Entries).Must(l => l is null || l.Count <= MaxItemsPerKind);
         RuleFor(x => x.Urges).Must(l => l is null || l.Count <= MaxItemsPerKind);
         RuleFor(x => x.Goals).Must(l => l is null || l.Count <= MaxItemsPerKind);
+        RuleFor(x => x.JournalEntries).Must(l => l is null || l.Count <= MaxItemsPerKind);
+        RuleForEach(x => x.JournalEntries).SetValidator(new SaveJournalEntryRequestValidator())
+            .Must(j => j.Id is not null).WithMessage("Backed-up records need their id.");
         RuleForEach(x => x.OnboardingResponses).SetValidator(new SubmitOnboardingRequestValidator())
             .Must(r => r.Id is not null).WithMessage("Backed-up records need their id.");
         RuleForEach(x => x.Entries).SetValidator(new SaveGamblingEntryRequestValidator(time))
@@ -82,6 +88,7 @@ public sealed class BackupHandler(
     PlatformResolver platformResolver,
     IUrgeRepository urges,
     IGoalRepository goals,
+    IJournalRepository journal,
     IUnitOfWork unitOfWork,
     TimeProvider time)
 {
@@ -156,6 +163,22 @@ public sealed class BackupHandler(
                 goal.AddContribution(c.Id, c.Amount, c.Source, c.OccurredAtUtc.AsUtc(), now);
             }
             if (existing is null) { goals.Add(goal); created++; } else updated++;
+        }
+
+        foreach (var j in request.JournalEntries ?? [])
+        {
+            if (await journal.GetAsync(j.Id!.Value, profile.Id, ct) is { } existing)
+            {
+                existing.Update(j.OccurredAtUtc!.Value.AsUtc(), j.Mood, j.Trigger, j.UrgeIntensity, j.Outcome, j.Helped ?? [], j.Note, now);
+                updated++;
+            }
+            else if (await journal.ExistsAsync(j.Id.Value, ct)) skipped++;
+            else
+            {
+                journal.Add(JournalEntry.Create(j.Id, profile.Id, j.OccurredAtUtc!.Value.AsUtc(), j.Mood, j.Trigger, j.UrgeIntensity,
+                    j.Outcome, j.Helped ?? [], j.Note, now));
+                created++;
+            }
         }
 
         await unitOfWork.SaveChangesAsync(ct);

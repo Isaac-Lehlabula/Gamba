@@ -4,6 +4,7 @@ import 'package:reclaim_app/core/storage/app_database.dart';
 import 'package:reclaim_app/features/blocker/data/blocker_repositories.dart';
 import 'package:reclaim_app/features/goals/data/goal_repository.dart';
 import 'package:reclaim_app/features/goals/domain/goal_models.dart';
+import 'package:reclaim_app/features/journal/data/journal_repository.dart';
 import 'package:reclaim_app/features/onboarding/domain/onboarding_models.dart';
 import 'package:reclaim_app/features/tracker/data/tracker_repository.dart';
 import 'package:reclaim_app/features/tracker/domain/money.dart';
@@ -42,7 +43,9 @@ Future<void> expectCurrentSchemaWorks(Database raw) async {
   expect(await db.select(db.goalContributions).get(), hasLength(1));
     await ProtectionRepository(db, const Uuid(), () => testNow).startLock(7);
   expect(await db.select(db.protectionLocks).get(), hasLength(1));
-  expect(raw.select('PRAGMA user_version').single.values.single, 5);
+  await JournalRepository(db, const Uuid(), () => testNow).add(JournalInput(occurredAt: testNow, mood: 3));
+  expect(await db.select(db.journalEntries).get(), hasLength(1));
+  expect(raw.select('PRAGMA user_version').single.values.single, 6);
 }
 
 void main() {
@@ -51,28 +54,35 @@ void main() {
   test('version 1 upgrades to the current schema', () async {
     final raw = sqlite3.openInMemory();
     addTearDown(raw.close);
-    await rewindTo(raw, 1, ['gambling_entries', 'urges', 'goal_contributions', 'recovery_goals', 'protection_removal_requests', 'protection_locks', 'blocked_domains', 'local_settings']);
+    await rewindTo(raw, 1, ['gambling_entries', 'urges', 'goal_contributions', 'recovery_goals', 'protection_removal_requests', 'protection_locks', 'blocked_domains', 'local_settings', 'journal_entries']);
     await expectCurrentSchemaWorks(raw);
   });
 
   test('version 2 upgrades to the current schema', () async {
     final raw = sqlite3.openInMemory();
     addTearDown(raw.close);
-    await rewindTo(raw, 2, ['urges', 'goal_contributions', 'recovery_goals', 'protection_removal_requests', 'protection_locks', 'blocked_domains', 'local_settings']);
+    await rewindTo(raw, 2, ['urges', 'goal_contributions', 'recovery_goals', 'protection_removal_requests', 'protection_locks', 'blocked_domains', 'local_settings', 'journal_entries']);
     await expectCurrentSchemaWorks(raw);
   });
 
   test('version 3 upgrades to the current schema', () async {
     final raw = sqlite3.openInMemory();
     addTearDown(raw.close);
-    await rewindTo(raw, 3, ['goal_contributions', 'recovery_goals', 'protection_removal_requests', 'protection_locks', 'blocked_domains', 'local_settings']);
+    await rewindTo(raw, 3, ['goal_contributions', 'recovery_goals', 'protection_removal_requests', 'protection_locks', 'blocked_domains', 'local_settings', 'journal_entries']);
     await expectCurrentSchemaWorks(raw);
   });
 
   test('version 4 upgrades to the current schema', () async {
     final raw = sqlite3.openInMemory();
     addTearDown(raw.close);
-    await rewindTo(raw, 4, ['protection_removal_requests', 'protection_locks', 'blocked_domains', 'local_settings']);
+    await rewindTo(raw, 4, ['protection_removal_requests', 'protection_locks', 'blocked_domains', 'local_settings', 'journal_entries']);
+    await expectCurrentSchemaWorks(raw);
+  });
+
+  test('version 5 upgrades to the current schema', () async {
+    final raw = sqlite3.openInMemory();
+    addTearDown(raw.close);
+    await rewindTo(raw, 5, ['journal_entries']);
     await expectCurrentSchemaWorks(raw);
   });
 }

@@ -5,6 +5,7 @@ using Reclaim.Domain.Auditing;
 using Reclaim.Domain.Content;
 using Reclaim.Domain.Gambling;
 using Reclaim.Domain.Goals;
+using Reclaim.Domain.Journal;
 using Reclaim.Domain.Onboarding;
 using Reclaim.Domain.Urges;
 using Reclaim.Domain.Users;
@@ -27,6 +28,7 @@ public sealed class ReclaimDbContext(DbContextOptions<ReclaimDbContext> options,
     public DbSet<GoalContribution> GoalContributions => Set<GoalContribution>();
     public DbSet<BlocklistDomain> BlocklistDomains => Set<BlocklistDomain>();
     public DbSet<SupportResource> SupportResources => Set<SupportResource>();
+    public DbSet<JournalEntry> JournalEntries => Set<JournalEntry>();
 
     async Task IUnitOfWork.SaveChangesAsync(CancellationToken cancellationToken) =>
         await SaveChangesAsync(cancellationToken);
@@ -48,7 +50,8 @@ public sealed class ReclaimDbContext(DbContextOptions<ReclaimDbContext> options,
             .ApplyConfiguration(new RecoveryGoalConfiguration())
             .ApplyConfiguration(new GoalContributionConfiguration())
             .ApplyConfiguration(new BlocklistDomainConfiguration())
-            .ApplyConfiguration(new SupportResourceConfiguration());
+            .ApplyConfiguration(new SupportResourceConfiguration())
+            .ApplyConfiguration(new JournalEntryConfiguration(encryptor));
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)

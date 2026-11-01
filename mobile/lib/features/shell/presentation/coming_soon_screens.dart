@@ -41,17 +41,6 @@ class ComingSoonScreen extends StatelessWidget {
   }
 }
 
-class JournalComingSoonScreen extends StatelessWidget {
-  const JournalComingSoonScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) => const ComingSoonScreen(
-        title: 'Journal',
-        icon: Icons.edit_note_outlined,
-        message: 'A private place to note urges and moods, so you can start to notice patterns. No judgement, just observations.',
-      );
-}
-
 class SupportComingSoonScreen extends StatelessWidget {
   const SupportComingSoonScreen({super.key});
 

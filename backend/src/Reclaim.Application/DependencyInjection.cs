@@ -6,6 +6,7 @@ using Reclaim.Application.Backup;
 using Reclaim.Application.Content;
 using Reclaim.Application.Dashboard;
 using Reclaim.Application.Goals;
+using Reclaim.Application.Journal;
 using Reclaim.Application.Urges;
 using Reclaim.Application.GamblingEntries;
 using Reclaim.Application.Onboarding;
@@ -54,6 +55,7 @@ public static class DependencyInjection
         services.AddScoped<GetBlocklistHandler>();
         services.AddScoped<GetSupportResourcesHandler>();
         services.AddScoped<BackupHandler>();
+        services.AddScoped<JournalHandlers>();
         return services;
     }
 }

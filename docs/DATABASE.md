@@ -92,6 +92,12 @@ One per profile. `Id`, `UserProfileId (fk, unique)`, `QuitOrReductionStartDateUt
 `UpdatedAtUtc`. Streak/longest-streak values are recomputed from `GamblingEntry`/`Urge`
 outcome data by an application-layer service rather than trusted as free-standing input.
 
+### JournalEntry
+`Id`, `UserProfileId (fk)`, `OccurredAtUtc`, `Mood (1-5, nullable)`, `Trigger (TriggerType,
+nullable)`, `UrgeIntensity (1-5, nullable)`, `Outcome (NoUrge | Resisted | Gambled, nullable)`,
+`Helped (text[] of CopingStrategy)`, `Note (text, nullable, encrypted at rest)`,
+`CreatedAtUtc`, `UpdatedAtUtc`. Supersedes the planned `RecoveryCheckIn` for mood check-ins.
+
 ### RecoveryCheckIn
 Lightweight daily/periodic check-in record (mood, one-line note). `Id`, `UserProfileId
 (fk)`, `CheckInDateUtc`, `Mood (1-5, nullable)`, `Note (text, nullable)`, `CreatedAtUtc`.
@@ -165,5 +171,6 @@ keep the platform as a free-text `platformName` rather than a `GamblingPlatform`
 (the backend groups names on sync); onboarding spend is whole rands. Local schema history:
 version 1 (profile, onboarding, self-assessment), version 2 (gambling entries), version 3
 (urges), version 4 (recovery goals and goal contributions; contributions cascade with
-their goal, so foreign keys are switched on for every connection). Urge triggers are stored as the `TriggerType` enum name rather than a foreign key to
+their goal, so foreign keys are switched on for every connection), version 5 (blocked domains,
+protection lock and removal requests, local settings), version 6 (journal entries). Urge triggers are stored as the `TriggerType` enum name rather than a foreign key to
 an `UrgeTrigger` lookup row; the backend can map names to its lookup on sync.

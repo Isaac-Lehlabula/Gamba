@@ -136,27 +136,32 @@ class _StreakCard extends StatelessWidget {
 
     return Card(
       color: theme.colorScheme.primaryContainer,
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (days > 0) ...[
-              Text(days == 1 ? '1 day' : '$days days', style: theme.textTheme.displaySmall),
-              Text('without gambling', style: onCard),
-            ] else
-              // Logged gambling today: acknowledge it without judgement.
-              Text("You've logged gambling today. Being honest about it is part of the work, and tomorrow starts a new run.",
-                  style: onCard),
-            const SizedBox(height: AppSpacing.md),
-            Text(
-              [
-                'Day ${streaks.journeyDay} of your journey',
-                if (streaks.longest > days) 'Longest run: ${streaks.longest} days',
-              ].join(' · '),
-              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onPrimaryContainer),
-            ),
-          ],
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        // The run and journey day lead naturally into the milestone timeline.
+        onTap: () => context.push(Routes.timeline),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (days > 0) ...[
+                Text(days == 1 ? '1 day' : '$days days', style: theme.textTheme.displaySmall),
+                Text('without gambling', style: onCard),
+              ] else
+                // Logged gambling today: acknowledge it without judgement.
+                Text("You've logged gambling today. Being honest about it is part of the work, and tomorrow starts a new run.",
+                    style: onCard),
+              const SizedBox(height: AppSpacing.md),
+              Text(
+                [
+                  'Day ${streaks.journeyDay} of your journey',
+                  if (streaks.longest > days) 'Longest run: ${streaks.longest} days',
+                ].join(' · '),
+                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onPrimaryContainer),
+              ),
+            ],
+          ),
         ),
       ),
     );

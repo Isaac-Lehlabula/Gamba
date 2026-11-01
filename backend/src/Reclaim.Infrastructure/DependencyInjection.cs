@@ -53,6 +53,7 @@ public static class DependencyInjection
         services.AddScoped<IGamblingActivityReader, GamblingActivityReader>();
         services.AddScoped<IBlocklistRepository, BlocklistRepository>();
         services.AddScoped<ISupportResourceRepository, SupportResourceRepository>();
+        services.AddScoped<Reclaim.Application.Journal.IJournalRepository, JournalRepository>();
 
         services.AddHostedService<AccountPurgeService>();
         services.AddHostedService<BlocklistSeeder>();
