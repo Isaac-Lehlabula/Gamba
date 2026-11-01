@@ -48,8 +48,14 @@ public static class DependencyInjection
         services.AddScoped<ISelfAssessmentRepository, SelfAssessmentRepository>();
         services.AddScoped<IGamblingEntryRepository, GamblingEntryRepository>();
         services.AddScoped<IGamblingPlatformRepository, GamblingPlatformRepository>();
+        services.AddScoped<IUrgeRepository, UrgeRepository>();
+        services.AddScoped<IGoalRepository, GoalRepository>();
+        services.AddScoped<IGamblingActivityReader, GamblingActivityReader>();
+        services.AddScoped<IBlocklistRepository, BlocklistRepository>();
+        services.AddScoped<ISupportResourceRepository, SupportResourceRepository>();
 
         services.AddHostedService<AccountPurgeService>();
+        services.AddHostedService<BlocklistSeeder>();
         services.AddHealthChecks().AddDbContextCheck<ReclaimDbContext>("database");
         return services;
     }

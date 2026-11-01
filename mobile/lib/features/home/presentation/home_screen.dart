@@ -8,6 +8,8 @@ import '../../../core/storage/storage_providers.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../assessment/data/assessment_repository.dart';
 import '../../dashboard/domain/dashboard.dart';
+import '../../goals/data/goal_repository.dart';
+import '../../goals/presentation/goal_widgets.dart';
 import '../../onboarding/data/profile_repository.dart';
 import '../../tracker/data/tracker_repository.dart';
 import '../../tracker/domain/money.dart';
@@ -32,13 +34,25 @@ class HomeScreen extends ConsumerWidget {
     final moneyGoal = ref.watch(latestOnboardingProvider).value?.moneyGoalPreference;
     final latestCheck = ref.watch(assessmentHistoryProvider).value?.firstOrNull;
     final activeUrge = ref.watch(activeUrgeProvider).value;
+    // The first goal not yet reached; otherwise the most recent one.
+    final goalViews = ref.watch(goalViewsProvider) ?? const <GoalView>[];
+    final featuredGoal = goalViews.where((v) => !v.progress.isReached).firstOrNull ?? goalViews.lastOrNull;
 
     return Scaffold(
       body: SafeArea(
         child: ListView(
           padding: AppSpacing.screen,
           children: [
-            Text(greetingFor(now), style: theme.textTheme.headlineMedium),
+            Row(
+              children: [
+                Expanded(child: Text(greetingFor(now), style: theme.textTheme.headlineMedium)),
+                IconButton(
+                  icon: const Icon(Icons.settings_outlined),
+                  tooltip: 'Settings',
+                  onPressed: () => context.push(Routes.settings),
+                ),
+              ],
+            ),
             const SizedBox(height: AppSpacing.lg),
             if (activeUrge != null)
               Card(
@@ -63,11 +77,17 @@ class HomeScreen extends ConsumerWidget {
               _StreakCard(streaks: summary.streaks),
               if (summary.moneyKeptCents case final kept?) ...[
                 const SizedBox(height: AppSpacing.md),
-                _MoneyKeptCard(keptCents: kept, usualMonthlyRands: summary.usualMonthlySpendRands!, goal: moneyGoal),
-              ] else if (moneyGoal != null) ...[
-                const SizedBox(height: AppSpacing.md),
-                _GoalCard(goal: moneyGoal),
+                _MoneyKeptCard(
+                  keptCents: kept,
+                  usualMonthlyRands: summary.usualMonthlySpendRands!,
+                  goal: featuredGoal == null ? moneyGoal : null,
+                ),
               ],
+              const SizedBox(height: AppSpacing.md),
+              if (featuredGoal != null)
+                GoalCard(view: featuredGoal, onTap: () => context.push(Routes.goal(featuredGoal.goal.id)))
+              else
+                _GoalPrompt(suggestion: moneyGoal),
               const SizedBox(height: AppSpacing.lg),
               Text('This month', style: theme.textTheme.titleLarge),
               const SizedBox(height: AppSpacing.sm),
@@ -181,18 +201,21 @@ class _MoneyKeptCard extends StatelessWidget {
   }
 }
 
-class _GoalCard extends StatelessWidget {
-  const _GoalCard({required this.goal});
+/// Shown until the first goal exists, suggesting the one named during onboarding.
+class _GoalPrompt extends StatelessWidget {
+  const _GoalPrompt({required this.suggestion});
 
-  final String goal;
+  final String? suggestion;
 
   @override
   Widget build(BuildContext context) => Card(
         child: ListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
           leading: Icon(Icons.savings_outlined, color: Theme.of(context).colorScheme.primary),
-          title: const Text('What you are working toward'),
-          subtitle: Text(goal),
+          title: Text(suggestion == null ? 'Set a goal' : 'Working toward: $suggestion'),
+          subtitle: const Text('Give the money you keep somewhere to go.'),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => context.push(Routes.goals),
         ),
       );
 }

@@ -53,6 +53,13 @@ worked out from the stored `startedAt` and `coolingOffMinutes`, so it carries on
 restarts. All guidance copy lives in `urge_models.dart`, and `urge_test.dart` checks it for
 shaming language.
 
+## Goals
+
+`lib/features/goals/`. A contribution is either money the user has set aside, or part of the
+estimated money kept. Estimated contributions can't exceed what is currently estimated and not
+yet moved into a goal; if the estimate later falls, existing contributions stay but nothing
+more can be moved.
+
 ## Things to keep in sync with the backend
 
 - `lib/features/assessment/domain/questionnaire.dart` mirrors the backend questionnaire

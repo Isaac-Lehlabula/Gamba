@@ -73,7 +73,7 @@ void main() {
 
     expect(find.text('High risk'), findsOneWidget);
     expect(find.text('What might help'), findsOneWidget);
-    await tester.scrollUntilVisible(find.textContaining('not a medical diagnosis'), 200, scrollable: find.byType(Scrollable).first);
+    await tester.reveal(find.textContaining('not a medical diagnosis'));
     expect(find.textContaining('not a medical diagnosis'), findsOneWidget);
 
     await tester.tapButton('Continue');
@@ -94,11 +94,11 @@ void main() {
 
     await tester.tap(find.text('Block'));
     await tester.pumpAndSettle();
-    expect(find.text('Coming soon'), findsOneWidget);
+    expect(find.text('Protection is off'), findsOneWidget);
 
     await tester.tap(find.text('Progress'));
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(find.text('Take the self-check'), 200, scrollable: find.byType(Scrollable).first);
+    await tester.reveal(find.text('Take the self-check'));
     expect(find.text('Take the self-check'), findsOneWidget);
 
     await tester.disposeApp();

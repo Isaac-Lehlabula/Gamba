@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="Reclaim.Api.IntegrationTests" />
+    <EmbeddedResource Include="Seed\blocklist-seed.txt" LogicalName="Reclaim.Infrastructure.Seed.blocklist-seed.txt" />
   </ItemGroup>
 
 </Project>

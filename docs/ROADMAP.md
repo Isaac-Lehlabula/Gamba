@@ -26,7 +26,19 @@ Progress:
 - [x] Mobile: "I feel like gambling" urge flow (trigger, intensity, 10-60 minute pause that
       survives closing the app, personal reasons and trigger-specific tips, breathing and
       grounding, outcome; an urge that ends in gambling counts toward the streak)
-- [ ] Mobile: goals, settings/wipe, backup
+- [x] Mobile: recovery goals with contributions ("set aside" or moved from the estimated
+      savings, which is capped at the current estimate and always labelled as an estimate)
+- [x] Mobile: settings (app lock with PIN/biometrics, edit plan, delete everything), optional
+      account with one-shot backup (`POST /api/v1/backup`)
+- [x] Backend: urges, goals, dashboard summary, public blocklist (seeded), verified-only
+      support resources, backup endpoint
+- [x] Android blocker: local VPN DNS filter, verified on an emulator (Android 16): listed
+      domains and their subdomains stop resolving, other sites resolve normally, the Block
+      tab shows blocked attempts, and turning it off restores normal lookups. Protection lock
+      with 24-hour cooling-off and user-added sites are local-only for now
+- [ ] iOS Screen Time scaffold written in AppDelegate.swift, unverified (needs a Mac), off
+      unless built with RECLAIM_IOS_SCREEN_TIME=true
+- [ ] Docs: API.md and DATABASE.md not yet updated for urges/goals/blocklist/backup/schema v5
 - [ ] Mobile: a notification when a pause finishes while the app is closed (needs the
       Phase 6 notification work)
 - [ ] Android blocker, iOS blocker scaffold, local protection lock

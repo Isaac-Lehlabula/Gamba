@@ -85,7 +85,7 @@ abstract final class Questionnaire {
   static const _protectionLock = RecommendedAction('ProtectionLock', 'Lock your protection in place',
       'A protection lock stops blocking being switched off in a difficult moment.');
   static const _speakToProfessional = RecommendedAction('SpeakToProfessional', 'Speak to a counsellor or support line',
-      'Free, confidential support is available, and many people find it makes a real difference.');
+      'Confidential support is available, and many people find it makes a real difference.');
   static const _financialSupport = RecommendedAction('FinancialSupport', 'Get help with money pressure',
       'A financial counsellor can help with debt and a plan to get back on track.');
 

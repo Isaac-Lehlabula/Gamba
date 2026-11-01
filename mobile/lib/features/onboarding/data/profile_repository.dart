@@ -74,6 +74,24 @@ class ProfileRepository {
   }
 }
 
+extension PlanEdits on ProfileRepository {
+  Future<void> setGoalType(RecoveryGoalType goal) =>
+      _db.update(_db.localProfiles).write(LocalProfilesCompanion(recoveryGoalType: Value(goal), updatedAt: Value(_now())));
+
+  /// Updates the usual monthly spend used for the money-kept estimate. It lives on the latest
+  /// onboarding answers, which is where it was first given.
+  Future<void> setUsualMonthlySpend(int? rands) async {
+    if (rands != null && rands < 0) throw ArgumentError('Spend cannot be negative.');
+    final latest = await (_db.select(_db.onboardingResponses)
+          ..orderBy([(t) => OrderingTerm.desc(t.createdAt)])
+          ..limit(1))
+        .getSingleOrNull();
+    if (latest == null) return;
+    await (_db.update(_db.onboardingResponses)..where((t) => t.id.equals(latest.id)))
+        .write(OnboardingResponsesCompanion(approxMonthlySpendRands: Value(rands)));
+  }
+}
+
 @Riverpod(keepAlive: true)
 ProfileRepository profileRepository(Ref ref) =>
     ProfileRepository(ref.watch(appDatabaseProvider), ref.watch(uuidProvider), ref.watch(clockProvider));

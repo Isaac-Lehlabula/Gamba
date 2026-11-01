@@ -59,7 +59,7 @@ public static class AssessmentGuidance
     private static readonly RecommendedAction ProtectionLock = new("ProtectionLock", "Lock your protection in place",
         "A protection lock stops blocking being switched off in a difficult moment.");
     private static readonly RecommendedAction SpeakToProfessional = new("SpeakToProfessional", "Speak to a counsellor or support line",
-        "Free, confidential support is available, and many people find it makes a real difference.");
+        "Confidential support is available, and many people find it makes a real difference.");
     private static readonly RecommendedAction FinancialSupport = new("FinancialSupport", "Get help with money pressure",
         "A financial counsellor can help with debt and a plan to get back on track.");
 

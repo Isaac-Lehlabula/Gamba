@@ -183,6 +183,7 @@ class _EntryFormState extends ConsumerState<_EntryForm> {
               ),
               const SizedBox(height: AppSpacing.sm),
               DropdownButtonFormField<GamblingType>(
+                isExpanded: true,
                 initialValue: _gamblingType,
                 decoration: const InputDecoration(labelText: 'Type of gambling'),
                 items: [for (final t in GamblingType.values) DropdownMenuItem(value: t, child: Text(t.label))],

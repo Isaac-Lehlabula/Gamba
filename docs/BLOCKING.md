@@ -31,7 +31,9 @@ The realistic, no-root approach used by mature tools (e.g. the open-source NetGu
 4. If not blocked: the query is forwarded untouched to the real upstream DNS resolver and
    the response is relayed back.
 
-**Required permissions / setup:** `BIND_VPN_SERVICE`, a one-time system VPN-permission
+**Required permissions / setup:** `BIND_VPN_SERVICE`, `ACCESS_NETWORK_STATE` (to find the real
+network's DNS servers to forward allowed lookups to; without it the first forwarded lookup
+crashed the app), `FOREGROUND_SERVICE` + `FOREGROUND_SERVICE_SPECIAL_USE` (Android 14+), a one-time system VPN-permission
 dialog (`VpnService.prepare()`), a persistent notification while the local VPN is active
 (required by Android), and — for Play Store distribution — completing Google Play's
 **VpnService declaration form**, selecting a permitted core-purpose category (device
@@ -131,6 +133,19 @@ to reach and adds a waiting period before protection can be turned off. It canno
 guarantee you can never bypass this on your own device — no consumer app can — but it is
 designed to interrupt the moment of urge."* This is intentional and matches the product
 principle of never over-promising.
+
+## Android implementation notes
+
+- Code: `mobile/android/app/src/main/kotlin/za/reclaim/reclaim_app/blocker/`. The tunnel only
+  routes an in-tunnel DNS address (`10.111.222.2`), so ordinary traffic never enters it.
+  Blocked names get NXDOMAIN; other lookups are forwarded to the underlying network's DNS
+  servers (falling back to 1.1.1.1 / 8.8.8.8 only if those can't be read).
+- Whether protection is running is held in memory by the service, never in preferences, so a
+  crash can't leave the app reporting protection that isn't there.
+- A short local log (time + listed domain, last 500) powers "Blocked N times". It never leaves
+  the phone, and "Delete everything on this phone" stops protection and clears it.
+- Pure parsing/matching code has JVM unit tests (`app/src/test/...`, run with
+  `gradlew app:testDebugUnitTest`).
 
 ## Remote blocklist architecture
 

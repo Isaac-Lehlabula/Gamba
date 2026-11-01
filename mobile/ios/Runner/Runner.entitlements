@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Not yet referenced by the Xcode project: adding the Family Controls capability in Xcode
+     links this file (CODE_SIGN_ENTITLEMENTS). See the notes in AppDelegate.swift. -->
+<plist version="1.0">
+<dict>
+	<key>com.apple.developer.family-controls</key>
+	<true/>
+</dict>
+</plist>

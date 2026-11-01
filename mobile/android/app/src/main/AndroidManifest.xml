@@ -1,4 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
+    <!-- Optional account backup and blocklist updates. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- On-device DNS filtering (docs/BLOCKING.md): a local VPN with an ongoing notification. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <!-- To find the real network's DNS servers for lookups that aren't blocked. -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <application
         android:label="Reclaim"
         android:allowBackup="false"
@@ -32,6 +41,18 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <service
+            android:name=".blocker.ReclaimVpnService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse"
+            android:permission="android.permission.BIND_VPN_SERVICE">
+            <intent-filter>
+                <action android:name="android.net.VpnService"/>
+            </intent-filter>
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="On-device DNS filtering that blocks gambling websites the user has chosen to block"/>
+        </service>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

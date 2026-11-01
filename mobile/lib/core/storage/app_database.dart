@@ -1,6 +1,8 @@
 import 'package:drift/drift.dart';
 
 import '../../features/assessment/domain/questionnaire.dart';
+import '../../features/blocker/domain/blocker_models.dart';
+import '../../features/goals/domain/goal_models.dart';
 import '../../features/onboarding/domain/onboarding_models.dart';
 import '../../features/tracker/domain/money.dart';
 import '../../features/urges/domain/urge_models.dart';
@@ -98,15 +100,103 @@ class Urges extends Table {
   Set<Column<Object>> get primaryKey => {id};
 }
 
-@DriftDatabase(tables: [LocalProfiles, OnboardingResponses, SelfAssessmentResults, GamblingEntries, Urges])
+/// Something the user is putting money toward instead of gambling.
+class RecoveryGoals extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  TextColumn get category => textEnum<GoalCategory>()();
+  IntColumn get targetCents => integer()();
+  DateTimeColumn get targetDate => dateTime().nullable()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+/// Money counted toward a goal: set aside by the user, or moved from the estimated savings.
+class GoalContributions extends Table {
+  TextColumn get id => text()();
+  TextColumn get goalId => text().references(RecoveryGoals, #id, onDelete: KeyAction.cascade)();
+  IntColumn get amountCents => integer()();
+  TextColumn get source => textEnum<ContributionSource>()();
+  DateTimeColumn get occurredAt => dateTime()();
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+/// Domains the blocker refuses to resolve: the starter list, the server list and the user's own.
+class BlockedDomains extends Table {
+  TextColumn get domain => text()();
+  TextColumn get source => textEnum<BlockedDomainSource>()();
+  BoolColumn get isActive => boolean().withDefault(const Constant(true))();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {domain};
+}
+
+/// A commitment not to turn protection off for a set time (see ProtectionRules).
+class ProtectionLocks extends Table {
+  TextColumn get id => text()();
+  IntColumn get durationDays => integer()();
+  DateTimeColumn get startedAt => dateTime()();
+  DateTimeColumn get expiresAt => dateTime()();
+  TextColumn get status => textEnum<ProtectionLockStatus>()();
+  DateTimeColumn get endedAt => dateTime().nullable()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+/// Asking to end a lock early starts a cooling-off period instead of ending it at once.
+class ProtectionRemovalRequests extends Table {
+  TextColumn get id => text()();
+  TextColumn get lockId => text().references(ProtectionLocks, #id, onDelete: KeyAction.cascade)();
+  DateTimeColumn get requestedAt => dateTime()();
+  DateTimeColumn get coolingOffEndsAt => dateTime()();
+  TextColumn get status => textEnum<RemovalRequestStatus>()();
+  DateTimeColumn get resolvedAt => dateTime().nullable()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+/// Small non-secret values, such as the blocklist sync cursor.
+class LocalSettings extends Table {
+  TextColumn get key => text()();
+  TextColumn get value => text()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {key};
+}
+
+@DriftDatabase(
+  tables: [
+    LocalProfiles,
+    OnboardingResponses,
+    SelfAssessmentResults,
+    GamblingEntries,
+    Urges,
+    RecoveryGoals,
+    GoalContributions,
+    BlockedDomains,
+    ProtectionLocks,
+    ProtectionRemovalRequests,
+    LocalSettings,
+  ],
+)
 class AppDatabase extends $AppDatabase {
   AppDatabase(super.executor);
 
   static final _entriesByDate = Index('gambling_entries_occurred_at', 'CREATE INDEX gambling_entries_occurred_at ON gambling_entries (occurred_at)');
 
-  /// 1: profile, onboarding, self-assessment. 2: gambling entries. 3: urges.
+  /// 1: profile, onboarding, self-assessment. 2: gambling entries. 3: urges. 4: goals.
+  /// 5: blocker (domains, protection lock, settings).
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -118,10 +208,22 @@ class AppDatabase extends $AppDatabase {
           if (from < 3) {
             await m.createTable(urges);
           }
+          if (from < 4) {
+            await m.createTable(recoveryGoals);
+            await m.createTable(goalContributions);
+          }
+          if (from < 5) {
+            await m.createTable(blockedDomains);
+            await m.createTable(protectionLocks);
+            await m.createTable(protectionRemovalRequests);
+            await m.createTable(localSettings);
+          }
         },
         onCreate: (m) async {
           await m.createAll();
           await m.createIndex(_entriesByDate);
         },
+        // SQLite leaves foreign keys off by default; deleting a goal relies on the cascade.
+        beforeOpen: (_) => customStatement('PRAGMA foreign_keys = ON'),
       );
 }

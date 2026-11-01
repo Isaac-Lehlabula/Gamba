@@ -41,18 +41,6 @@ class ComingSoonScreen extends StatelessWidget {
   }
 }
 
-class BlockComingSoonScreen extends StatelessWidget {
-  const BlockComingSoonScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) => const ComingSoonScreen(
-        title: 'Block',
-        icon: Icons.shield_outlined,
-        message: 'Reclaim will be able to block gambling sites on this phone, so there is time between an urge and a bet.',
-        note: "No blocker can catch everything. When this arrives, we'll explain clearly what it can and can't block on your phone.",
-      );
-}
-
 class JournalComingSoonScreen extends StatelessWidget {
   const JournalComingSoonScreen({super.key});
 

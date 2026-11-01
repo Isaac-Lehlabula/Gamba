@@ -6,6 +6,8 @@
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Reclaim uses Face ID to unlock the app, so only you can open it.</string>
 	<key>CFBundleDisplayName</key>
 	<string>Reclaim</string>
 	<key>CFBundleExecutable</key>

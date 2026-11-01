@@ -1,0 +1,38 @@
+# Starter gambling-domain blocklist, applied idempotently at API startup (BlocklistSeeder).
+# Format: <domain> <category>, where category is a GamblingType name. Subdomains are blocked
+# by the clients' suffix matching, so list each registrable domain once.
+#
+# This is a starting point to be reviewed and extended, not an exhaustive list. Only add
+# domains confirmed to be gambling operators: a wrong entry blocks a legitimate site.
+# Copy of backend/src/Reclaim.Infrastructure/Seed/blocklist-seed.txt, bundled for offline first launch;
+# keep the two in sync (test/features/blocker/blocker_test.dart checks they match).
+
+# South African licensed bookmakers and casinos
+betway.co.za SportsBetting
+hollywoodbets.net SportsBetting
+sportingbet.co.za SportsBetting
+supabets.co.za SportsBetting
+sunbet.co.za Casino
+gbets.co.za SportsBetting
+playabets.co.za SportsBetting
+worldsportsbetting.co.za SportsBetting
+10bet.co.za SportsBetting
+betxchange.co.za SportsBetting
+yesplay.bet SportsBetting
+easybet.co.za SportsBetting
+lottostar.co.za Lottery
+tictacbets.co.za SportsBetting
+
+# International operators commonly reachable from South Africa
+bet365.com SportsBetting
+betway.com SportsBetting
+1xbet.com SportsBetting
+stake.com Casino
+pokerstars.com Casino
+888casino.com Casino
+williamhill.com SportsBetting
+betfair.com SportsBetting
+paddypower.com SportsBetting
+unibet.com SportsBetting
+draftkings.com SportsBetting
+fanduel.com SportsBetting

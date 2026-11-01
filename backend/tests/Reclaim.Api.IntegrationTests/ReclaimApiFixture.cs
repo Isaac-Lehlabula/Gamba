@@ -55,7 +55,10 @@ public sealed class ReclaimApiFixture : IAsyncLifetime
         });
 
         await using var scope = _factory.Services.CreateAsyncScope();
-        await scope.ServiceProvider.GetRequiredService<ReclaimDbContext>().Database.MigrateAsync();
+        var db = scope.ServiceProvider.GetRequiredService<ReclaimDbContext>();
+        await db.Database.MigrateAsync();
+        // The startup seeder ran before this migration, so seed now, as a deploy would after migrating.
+        await Reclaim.Infrastructure.Jobs.BlocklistSeeder.SeedAsync(db, DateTime.UtcNow);
     }
 
     public HttpClient CreateClient() => _factory!.CreateClient();
